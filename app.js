@@ -2,7 +2,7 @@
 
 // Data files call JPW.index(...) / JPW.chunk(series, i, rows, lexicon); loaded via <script> so file:// works too.
 // Series: "all" (rank order), "t-<topic>", "n<jlpt level>"; each is the same rows filtered, split into chunks.
-// Row: [rank, kanji, kana, romaji, gloss, [sentence, ...], usuallyKana, jlptLevel(0-5), posCode]
+// Row: [rank, kanji, kana, romaji, gloss, [sentence, ...], usuallyKana, jlptLevel(0-5), posCode, lexiconIndex]
 // Sentence: [tatoebaId|0, english, nativeAudioAuthor|0, [[surface, kana, romaji, lexiconIndex|-1], ...], source]
 //   source: "w" Wiktionary, "j" JMdict (curated Tatoeba), "t" Tatoeba
 // Lexicon entry: [kanji, kana, romaji, [[gloss, ...] per sense], rank|0, partOfSpeech]
@@ -214,12 +214,12 @@ function playToken_(tok, el) {
 // ---------------------------------------------------------------- definition panel
 let defTok = null;
 
-function showDef(item, tok, tokEl) {
-  const [surface, tk, tr, li] = tok;
-  const e = li >= 0 ? item.lex[li] : null;
+// Shows a lexicon entry; `tok` (optional) is the sentence token it was reached from.
+function showDef(item, e, el, tok) {
+  const [surface, tk, tr] = tok || [];
   if (defTok) defTok.classList.remove("defd");
-  defTok = tokEl;
-  tokEl.classList.add("defd");
+  defTok = el;
+  el.classList.add("defd");
   let html;
   if (!e) {
     html = `<div class="def-head"><span class="def-word static"><span class="def-rom">${esc(tr)}</span><span class="def-kana">${esc(kana(tk))}</span></span></div>` +
@@ -227,7 +227,7 @@ function showDef(item, tok, tokEl) {
   } else {
     const [kj, kn, rom, senses, rank, pos] = e;
     const head = kj || kn;
-    const inflected = surface !== head && surface !== kn;
+    const inflected = tok && surface !== head && surface !== kn;
     let rankHtml = "";
     if (rank === item.row[0]) rankHtml = `<span class="def-tag">this row’s word</span>`;
     else if (rank) rankHtml = `<button class="def-tag link" data-def="goto" data-rank="${rank}">#${rank} in list →</button>`;
@@ -405,12 +405,20 @@ $("list").addEventListener("click", (ev) => {
     return;
   }
   if (btn === activeEl) { stopAll(); return; }
-  if (btn.dataset.act === "w") { reveal(btn.closest(".row").querySelector(".c-word")); playWord(item.row, btn); }
+  if (btn.dataset.act === "w") {
+    reveal(btn.closest(".row").querySelector(".c-word"));
+    playWord(item.row, btn);
+    if (item.row[9] >= 0) showDef(item, item.lex[item.row[9]], btn.closest(".row").querySelector(".w-btn"));
+  }
   else if (btn.dataset.act === "s") { reveal(btn.closest(".c-sent")); playSentence(sentOf(item), btn); }
   else if (btn.dataset.act === "t") { reveal(btn); playToken_(tokOf(btn), btn); }
 });
 
-const defineTok = (tok) => showDef(itemOf(tok), tokOf(tok), tok);
+const defineTok = (tok) => {
+  const item = itemOf(tok);
+  const t = tokOf(tok);
+  showDef(item, t[3] >= 0 ? item.lex[t[3]] : null, tok, t);
+};
 $("list").addEventListener("pointerover", (ev) => {
   const tok = ev.pointerType === "mouse" && ev.target.closest(".tok");
   if (tok && tok !== defTok) defineTok(tok);
