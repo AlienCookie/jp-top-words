@@ -55,6 +55,8 @@ const settings = {
   kanji: store.get("kanji", true),
   wordAudio: store.get("wordAudio", "rec"),
   rate: store.get("rate", 1),
+  order: store.get("order", "kana"),
+  romaji: store.get("romaji", "show"),
 };
 const filters = { topic: "", jlpt: 0, pos: "" };
 let page = 1;
@@ -65,6 +67,15 @@ const sentIdx = new Map(); // rank -> index of the example currently shown
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const toKata = (s) => s.replace(/[\u3041-\u3096]/g, (c) => String.fromCharCode(c.charCodeAt(0) + 0x60));
 const kana = (s) => (settings.script === "kata" ? toKata(s) : s);
+
+function applyDisplay() {
+  const b = document.body.classList;
+  b.toggle("hide-kanji", !settings.kanji);
+  b.toggle("rom-top", settings.order === "rom");
+  b.toggle("rom-off", settings.romaji === "off");
+  b.toggle("rom-reveal", settings.romaji === "reveal");
+}
+const reveal = (el) => el && el.classList.add("revealed");
 
 // ---------------------------------------------------------------- filtering
 const topicRanks = {};
@@ -228,6 +239,7 @@ function showDef(item, tok, tokEl) {
       `<ol class="def-senses">${senses.map((g) => `<li>${esc(g.join("; "))}</li>`).join("")}</ol>`;
   }
   $("defInner").innerHTML = html;
+  $("defbox").classList.remove("revealed");
   $("defbox").dataset.lex = e ? JSON.stringify([e[4], e[0], e[1]]) : "";
   $("defbox").hidden = false;
   document.body.classList.add("has-def");
@@ -393,9 +405,9 @@ $("list").addEventListener("click", (ev) => {
     return;
   }
   if (btn === activeEl) { stopAll(); return; }
-  if (btn.dataset.act === "w") playWord(item.row, btn);
-  else if (btn.dataset.act === "s") playSentence(sentOf(item), btn);
-  else if (btn.dataset.act === "t") playToken_(tokOf(btn), btn);
+  if (btn.dataset.act === "w") { reveal(btn.closest(".row").querySelector(".c-word")); playWord(item.row, btn); }
+  else if (btn.dataset.act === "s") { reveal(btn.closest(".c-sent")); playSentence(sentOf(item), btn); }
+  else if (btn.dataset.act === "t") { reveal(btn); playToken_(tokOf(btn), btn); }
 });
 
 const defineTok = (tok) => showDef(itemOf(tok), tokOf(tok), tok);
@@ -436,7 +448,7 @@ $("list").addEventListener("pointerup", (ev) => {
   const { tok, t } = press;
   endPress();
   if (Date.now() - t >= LONG_PRESS_MS) jumpToTokenWord(tok);
-  else { playToken_(tokOf(tok), tok); defineTok(tok); }
+  else { reveal(tok); playToken_(tokOf(tok), tok); defineTok(tok); }
 });
 
 function jumpToTokenWord(tok) {
@@ -454,6 +466,7 @@ $("defbox").addEventListener("click", (ev) => {
   if (!b) return;
   if (b.dataset.def === "play") {
     const [rank, kj, kn] = JSON.parse($("defbox").dataset.lex);
+    reveal($("defbox"));
     playWord([rank, kj, kn], b);
   } else if (b.dataset.def === "goto") {
     goToRank(+b.dataset.rank);
@@ -492,8 +505,10 @@ $("script").onchange = (e) => { settings.script = e.target.value; store.set("scr
 $("kanji").onchange = (e) => {
   settings.kanji = e.target.checked;
   store.set("kanji", settings.kanji);
-  document.body.classList.toggle("hide-kanji", !settings.kanji);
+  applyDisplay();
 };
+$("order").onchange = (e) => { settings.order = e.target.value; store.set("order", settings.order); applyDisplay(); };
+$("romaji").onchange = (e) => { settings.romaji = e.target.value; store.set("romaji", settings.romaji); applyDisplay(); };
 $("wordAudio").onchange = (e) => { settings.wordAudio = e.target.value; store.set("wordAudio", settings.wordAudio); };
 $("rate").oninput = (e) => { settings.rate = +e.target.value; store.set("rate", settings.rate); player.playbackRate = settings.rate; };
 
@@ -528,7 +543,9 @@ window.addEventListener("hashchange", () => {
   $("kanji").checked = settings.kanji;
   $("wordAudio").value = settings.wordAudio;
   $("rate").value = String(settings.rate);
-  document.body.classList.toggle("hide-kanji", !settings.kanji);
+  $("order").value = settings.order;
+  $("romaji").value = settings.romaji;
+  applyDisplay();
 
   $("status").textContent = "Loading…";
   loadScript("data/index.js", () => { $("status").textContent = "data/index.js not found — run build_data.py first."; });

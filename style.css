@@ -100,20 +100,38 @@ main { padding: 0 .5rem 1rem; }
 .en-more { font-size: .8rem; color: var(--muted); overflow-wrap: anywhere; }
 
 .w-btn { display: flex; flex-direction: column; align-items: flex-start; gap: .1rem; padding: 0 .35rem .15rem; margin: 0 -.35rem; border-radius: 8px; line-height: 1.25; }
-.w-rom { font-size: 1.45rem; font-weight: 700; letter-spacing: .02em; color: var(--accent); word-spacing: .05em; line-height: 1.15; }
-.w-kana { font: 1.05rem var(--jp); }
-.w-kanji { font: .85rem var(--jp); color: var(--muted); }
+.w-rom { word-spacing: .05em; letter-spacing: .02em; }
+.w-kanji { order: 3; font: .85rem var(--jp); color: var(--muted); }
 .w-kanji small { font: .7rem system-ui, sans-serif; color: var(--faint); }
+
+/* Phonetic lines: whichever is on top (kana by default, romaji with .rom-top) gets the main style. */
+.w-kana, .rom-top .w-rom { order: 1; font: 700 1.45rem/1.15 var(--jp); color: var(--accent); }
+.w-rom, .rom-top .w-kana { order: 2; font: 500 1rem/1.25 system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); }
+.rom-top .w-kana { font-family: var(--jp); font-weight: 400; }
+.t-kana, .rom-top .t-rom { order: 1; font: 600 .95rem var(--jp); color: var(--ink); }
+.t-rom, .rom-top .t-kana { order: 2; font: 400 .82rem system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--muted); }
+.rom-top .t-rom { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+.rom-top .t-kana { font-family: var(--jp); }
+.t-kanji { order: 3; }
+.def-kana, .rom-top .def-rom { order: 1; font: 700 1.3rem var(--jp); color: var(--accent); }
+.def-rom, .rom-top .def-kana { order: 2; font: 500 1.05rem system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); }
+.rom-top .def-kana { font-family: var(--jp); }
+.def-kanji { order: 3; }
+
+/* Romaji visibility: hidden entirely, or hidden until the word/sentence is played. */
+.rom-off .w-rom, .rom-off .t-rom, .rom-off .def-rom { display: none; }
+.rom-reveal .w-rom, .rom-reveal .t-rom, .rom-reveal .def-rom { visibility: hidden; }
+.rom-reveal .revealed .w-rom, .rom-reveal .revealed .t-rom, .rom-reveal .revealed .def-rom { visibility: visible; }
 
 .c-sent { min-width: 0; display: flex; gap: .6rem; align-items: flex-start; }
 .s-body { flex: 1; min-width: 0; }
-.s-side { flex: none; display: flex; flex-direction: column; gap: .5rem; }
+.s-side { flex: none; display: flex; flex-direction: column; gap: .2rem; }
 .side-btn {
-  width: 2.5rem; height: 2.5rem; border-radius: 50%; border: 1px solid var(--line); background: var(--card);
-  color: var(--accent); font-size: 1.15rem; display: flex; align-items: center; justify-content: center; text-align: center;
+  width: 2.1rem; height: 2.1rem; border-radius: 50%; border: 0; background: transparent;
+  color: var(--faint); font-size: .95rem; display: flex; align-items: center; justify-content: center; text-align: center;
 }
-.side-btn.play { background: var(--accent); border-color: var(--accent); color: #fff; padding-left: .15rem; }
-.side-btn.play.playing { color: var(--accent); }
+.side-btn.play { color: var(--accent); opacity: .75; padding-left: .1rem; }
+.side-btn.play.playing { opacity: 1; }
 .s-count { font-size: .72rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 .s-en { display: inline; font-size: .95rem; color: var(--ink); border-radius: 6px; }
 .badge {
@@ -126,12 +144,12 @@ main { padding: 0 .5rem 1rem; }
 .toks { display: flex; flex-wrap: wrap; gap: .15rem .55rem; margin-top: .4rem; }
 .tok, .punct { display: flex; flex-direction: column; align-items: flex-start; border-radius: 6px; padding: .1rem .15rem; }
 .tok { -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; }
-.tok.target .t-rom { color: var(--accent); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.tok.target .t-kana, .rom-top .tok.target .t-rom { color: var(--accent); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.rom-top .tok.target .t-kana { color: var(--muted); text-decoration: none; }
 .tok.defd { box-shadow: inset 0 -2px 0 var(--accent); background: var(--accent-soft); }
 .tok.armed { background: var(--play); transform: scale(1.06); transition: transform .1s; }
-.t-rom { font-size: .95rem; font-weight: 600; white-space: nowrap; }
-.t-kana { font: .9rem var(--jp); white-space: nowrap; }
 .t-kanji { font: .75rem var(--jp); color: var(--muted); white-space: nowrap; min-height: 1em; }
+.t-rom, .t-kana { white-space: nowrap; }
 .tg { display: inline-flex; align-items: flex-start; }
 .punct { color: var(--faint); padding-left: 0; padding-right: 0; }
 .no-sent { color: var(--faint); font-size: .85rem; font-style: italic; }
@@ -139,7 +157,7 @@ main { padding: 0 .5rem 1rem; }
 
 @media (hover: hover) {
   .w-btn:hover, .tok:hover, .s-en:hover, .en-main:hover { background: var(--accent-soft); }
-  .side-btn:not(.play):hover { background: var(--accent-soft); }
+  .side-btn:hover { background: var(--accent-soft); color: var(--accent); opacity: 1; }
 }
 .playing { background: var(--play) !important; }
 
@@ -167,8 +185,6 @@ body.has-def { padding-bottom: 11rem; }
 .def-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .8rem; }
 .def-word { display: inline-flex; align-items: baseline; gap: .6rem; border-radius: 8px; padding: 0 .3rem; margin-left: -.3rem; }
 .def-word:not(.static)::before { content: "\25B6"; color: var(--accent); font-size: .8rem; }
-.def-rom { font-size: 1.3rem; font-weight: 700; color: var(--accent); }
-.def-kana { font: 1.1rem var(--jp); }
 .def-kanji { font: 1.1rem var(--jp); color: var(--muted); }
 .hide-kanji .def-kanji { display: none; }
 .def-pos { font-size: .8rem; color: var(--muted); font-style: italic; }
@@ -197,10 +213,10 @@ body.has-def { padding-bottom: 11rem; }
   .chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: .3rem; scrollbar-width: none; }
   .chips::-webkit-scrollbar { display: none; }
   .c-sent { grid-column: 1 / -1; border-top: 1px dashed var(--line); padding-top: .45rem; }
-  .side-btn { width: 3rem; height: 3rem; font-size: 1.3rem; }
-  .w-rom { font-size: 1.3rem; }
+  .side-btn { width: 2.6rem; height: 2.6rem; font-size: 1.05rem; }
+  .w-kana, .rom-top .w-rom { font-size: 1.3rem; }
   .settings { gap: .4rem .8rem; }
   h1 { font-size: 1.05rem; }
   .defbox { max-height: 50vh; }
-  .def-rom { font-size: 1.15rem; }
+  .def-kana, .rom-top .def-rom { font-size: 1.15rem; }
 }
