@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Japanese Top Words</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="bar">
+  <div class="bar-row">
+    <h1>日本語 <span>top words</span></h1>
+    <nav class="pager" aria-label="Pages">
+      <button id="first" title="First page">«</button>
+      <button id="prev" title="Previous page (←)">‹</button>
+      <label class="page-box">
+        <input id="page" type="number" min="1" inputmode="numeric" aria-label="Page">
+        <span>/ <span id="pages">…</span></span>
+      </label>
+      <button id="next" title="Next page (→)">›</button>
+      <button id="last" title="Last page">»</button>
+    </nav>
+  </div>
+  <details id="opts" class="opts">
+  <summary>Settings</summary>
+  <div class="bar-row settings">
+    <label>Per page
+      <select id="size">
+        <option>20</option><option selected>50</option><option>100</option>
+      </select>
+    </label>
+    <label>Kana
+      <select id="script">
+        <option value="kata">カタカナ</option>
+        <option value="hira">ひらがな</option>
+      </select>
+    </label>
+    <label><input id="kanji" type="checkbox" checked> Kanji</label>
+    <label>Word audio
+      <select id="wordAudio">
+        <option value="rec">Recording (TTS fallback)</option>
+        <option value="tts">Device TTS</option>
+      </select>
+    </label>
+    <label>Speed <input id="rate" type="range" min="0.5" max="1.3" step="0.1" value="1"></label>
+  </div>
+  </details>
+</header>
+
+<section class="filters" aria-label="Filters">
+  <div id="topics" class="chips" role="group" aria-label="Topic"></div>
+  <div class="filter-row">
+    <label>JLPT
+      <select id="jlpt">
+        <option value="0">Any</option>
+        <option value="5">N5 (beginner)</option>
+        <option value="4">N4</option>
+        <option value="3">N3</option>
+        <option value="2">N2</option>
+        <option value="1">N1 (advanced)</option>
+      </select>
+    </label>
+    <label>Type <select id="pos"></select></label>
+    <label>Go to #<input id="goto" type="number" min="1" inputmode="numeric" placeholder="rank"></label>
+    <button id="clearFilters" class="link-btn" hidden>Clear filters</button>
+  </div>
+</section>
+
+<div class="head-row" aria-hidden="true">
+  <div>#</div><div>English</div><div>Word</div><div>Example</div>
+</div>
+<main id="list" aria-live="polite"></main>
+<p id="status" class="status"></p>
+<nav class="pager pager-bottom" aria-label="Pages">
+  <button id="prevB">‹ Previous</button>
+  <button id="nextB">Next ›</button>
+</nav>
+
+<footer>
+  <p class="hint-hover">Click a word or sentence to hear it. Hover a word in an example to see its definition below; click it to hear it.</p>
+  <p class="hint-touch">Tap a word or sentence to hear it. In examples, tap a word for its definition and press and hold to hear it.</p>
+  <p>Sentences marked <span class="badge">native</span> have a human recording; underlined example words are the row's word; ↻ shows another example.</p>
+  <p>Sources:
+    ranking — <a href="https://github.com/rspeer/wordfreq" target="_blank" rel="noopener">wordfreq</a> (CC BY-SA 4.0), lemmatized with UniDic;
+    words &amp; glosses — <a href="https://www.edrdg.org/wiki/index.php/JMdict-EDICT_Dictionary_Project" target="_blank" rel="noopener">JMdict</a> © EDRDG (CC BY-SA 4.0);
+    example sentences — <a href="https://en.wiktionary.org" target="_blank" rel="noopener">Wiktionary</a> usage examples via <a href="https://kaikki.org" target="_blank" rel="noopener">kaikki.org</a> (CC BY-SA 4.0),
+    JMdict's curated examples and <a href="https://tatoeba.org" target="_blank" rel="noopener">Tatoeba</a> (CC BY 2.0 FR; audio by individual contributors), picked for simple vocabulary;
+    topics — <a href="https://bond-lab.github.io/wnja/" target="_blank" rel="noopener">Japanese WordNet</a>, Wiktionary categories and JMdict fields (automatic, may be imperfect);
+    JLPT levels — <a href="https://github.com/jamsinclair/open-anki-jlpt-decks" target="_blank" rel="noopener">open JLPT lists</a> (from Jonathan Waller's tanos.co.uk, CC BY);
+    word audio — <a href="https://www.japanesepod101.com" target="_blank" rel="noopener">JapanesePod101</a> dictionary recordings, with the browser's speech synthesis as fallback.
+    Sentence readings use Wiktionary's ruby where available, otherwise MeCab/UniDic, and may contain errors.
+    <span id="built"></span></p>
+</footer>
+<aside id="defbox" class="defbox" hidden aria-live="polite">
+  <div class="def-wrap">
+    <div id="defInner" class="def-inner"></div>
+    <button id="defClose" class="def-close" aria-label="Close definition">×</button>
+  </div>
+</aside>
+<div id="toast" class="toast" role="status"></div>
+<script src="app.js"></script>
+</body>
+</html>
