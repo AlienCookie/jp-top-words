@@ -268,11 +268,13 @@ function renderSentence(item) {
     groups.push(`<button class="tok${target}" data-act="t" data-t="${ti}"><span class="t-rom">${esc(tr)}</span><span class="t-kana">${esc(kana(tk))}</span><span class="t-kanji">${kj}</span></button>`);
   });
   const [srcLabel, srcUrl] = SOURCES[src] || SOURCES.t;
-  const next = sents.length > 1
-    ? `<button class="s-next" data-act="n" title="Show another example">↻ ${si + 1}/${sents.length}</button>` : "";
-  return `<button class="s-en" data-act="s"><span class="ico" aria-hidden="true">▶</span>${esc(en)}</button>${badge}` +
+  const counter = sents.length > 1 ? `<span class="s-count">${si + 1}/${sents.length}</span>` : "";
+  return `<div class="s-body"><button class="s-en" data-act="s">${esc(en)}</button>${badge}` +
     `<div class="toks">${groups.map((g) => `<span class="tg">${g}</span>`).join("")}</div>` +
-    `<div class="s-meta">${next}<a class="src" href="${srcUrl(s, row)}" target="_blank" rel="noopener">${srcLabel} ↗</a></div>`;
+    `<div class="s-meta">${counter}<a class="src" href="${srcUrl(s, row)}" target="_blank" rel="noopener">${srcLabel} ↗</a></div></div>` +
+    `<div class="s-side"><button class="side-btn play" data-act="s" aria-label="Play sentence">▶</button>` +
+    (sents.length > 1 ? `<button class="side-btn" data-act="n" aria-label="Another example" title="Another example">↻</button>` : "") +
+    `</div>`;
 }
 
 function renderRow(item, idx) {
@@ -380,7 +382,7 @@ let lastPointerType = "mouse";
 $("list").addEventListener("click", (ev) => {
   const btn = ev.target.closest("[data-act]");
   if (!btn) return;
-  // Touch taps on sentence tokens are handled by the press logic below (tap = define, hold = play).
+  // Touch taps on sentence tokens are handled by the press logic below (tap = play, hold = jump to word).
   if (btn.dataset.act === "t" && ev.detail !== 0 && lastPointerType !== "mouse") return;
   const item = itemOf(btn);
   if (btn.dataset.act === "n") {
@@ -433,9 +435,18 @@ $("list").addEventListener("pointerup", (ev) => {
   if (!press || ev.pointerId !== press.id) return;
   const { tok, t } = press;
   endPress();
-  if (Date.now() - t >= LONG_PRESS_MS) playToken_(tokOf(tok), tok);
-  else defineTok(tok);
+  if (Date.now() - t >= LONG_PRESS_MS) jumpToTokenWord(tok);
+  else { playToken_(tokOf(tok), tok); defineTok(tok); }
 });
+
+function jumpToTokenWord(tok) {
+  const item = itemOf(tok);
+  const li = tokOf(tok)[3];
+  const rank = li >= 0 ? item.lex[li][4] : 0;
+  if (!rank) toast("This word isn't in the top-word list.");
+  else if (rank === item.row[0]) toast("That's this row's word.");
+  else goToRank(rank);
+}
 $("list").addEventListener("contextmenu", (ev) => { if (ev.target.closest(".tok")) ev.preventDefault(); });
 
 $("defbox").addEventListener("click", (ev) => {
