@@ -37,6 +37,7 @@ a { color: var(--accent); }
 .bar-row + .bar-row { margin-top: .35rem; }
 h1 { font: 600 1.2rem var(--jp); margin: 0; margin-right: auto; }
 h1 span { font-family: system-ui, sans-serif; font-weight: 400; color: var(--muted); font-size: .95rem; }
+.nav-link { font-size: .9rem; text-decoration: none; white-space: nowrap; }
 .pager { display: flex; align-items: center; gap: .25rem; }
 .pager button {
   min-width: 2.3rem; height: 2.3rem; border-radius: 8px; border: 1px solid var(--line);

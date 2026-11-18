@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kana — learn hiragana &amp; katakana</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="kana.css">
+</head>
+<body class="kana-page">
+<header class="bar">
+  <div class="bar-row">
+    <h1>かな <span>kana</span></h1>
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-tab="chart">Chart</button>
+      <button role="tab" data-tab="quiz">Quiz</button>
+      <button role="tab" data-tab="match">Match</button>
+    </nav>
+    <a class="nav-link" href="index.html">Words →</a>
+  </div>
+</header>
+
+<section class="setup">
+  <div class="seg" id="script" role="group" aria-label="Script">
+    <button data-v="h">ひらがな</button><button data-v="k">カタカナ</button><button data-v="b">Both</button>
+  </div>
+  <div class="setup-row">
+    <span class="setup-label">Practice set</span>
+    <div id="rows" class="chips"></div>
+  </div>
+  <div class="setup-row">
+    <div class="chips">
+      <button class="chip" id="selBasic">All basic</button>
+      <button class="chip" id="selAll">Everything</button>
+      <button class="chip" id="selLook">Look-alikes</button>
+      <button class="chip" id="selWeak">My weak ones</button>
+    </div>
+    <span id="setInfo" class="set-info"></span>
+  </div>
+</section>
+
+<main>
+  <!-- Chart -->
+  <section id="tab-chart" class="tab">
+    <div class="chart-tools">
+      <label><input type="checkbox" id="chartRomaji" checked> Romaji</label>
+      <span class="legend"><i class="m0"></i>new <i class="m1"></i>learning <i class="m3"></i>good <i class="m5"></i>mastered</span>
+    </div>
+    <div id="chart"></div>
+    <p class="hint">Tap a kana to hear it and see its stroke order. Tap a row name to add it to / remove it from the practice set.</p>
+  </section>
+
+  <!-- Quiz -->
+  <section id="tab-quiz" class="tab" hidden>
+    <div class="seg small" id="quizMode" role="group" aria-label="Quiz mode">
+      <button data-v="read">Kana → sound</button>
+      <button data-v="listen">Sound → kana</button>
+      <button data-v="type">Type it</button>
+      <button data-v="pair">ひ ↔ カ</button>
+    </div>
+    <div class="quiz-card">
+      <div class="quiz-stats"><span id="qScore">0 / 0</span><span id="qStreak"></span><span id="qMastery"></span></div>
+      <div class="progress"><div id="qProgress"></div></div>
+      <div id="prompt" class="prompt" aria-live="polite"></div>
+      <div id="choices" class="choices"></div>
+      <form id="typeForm" class="type-form" hidden autocomplete="off">
+        <input id="typeInput" type="text" inputmode="latin" autocapitalize="off" spellcheck="false" placeholder="type romaji, e.g. ka">
+        <button type="submit">Check</button>
+      </form>
+      <div id="feedback" class="feedback" aria-live="polite"></div>
+      <button id="nextBtn" class="next-btn" hidden>Next →</button>
+    </div>
+    <p class="hint">Keys: 1–4 to answer, Space to replay the sound, Enter for next. Kana you miss come back sooner; ones you know show up less often.</p>
+  </section>
+
+  <!-- Match -->
+  <section id="tab-match" class="tab" hidden>
+    <div class="match-tools">
+      <div class="seg small" id="matchMode" role="group" aria-label="Match pairs">
+        <button data-v="rom">Kana ↔ romaji</button>
+        <button data-v="script">ひらがな ↔ カタカナ</button>
+      </div>
+      <span id="matchInfo" class="match-info"></span>
+      <button id="matchNew" class="chip">New round</button>
+    </div>
+    <div id="matchGrid" class="match-grid"></div>
+    <p class="hint">Tap two cards that belong together. Clear the board as fast as you can.</p>
+  </section>
+</main>
+
+<footer>
+  <p>Stroke order: <a href="https://kanjivg.tagaini.net" target="_blank" rel="noopener">KanjiVG</a> by Ulrich Apel (CC BY-SA 3.0). Sounds use your device's Japanese speech voice.
+    Progress is stored only in this browser.</p>
+</footer>
+
+<aside id="detail" class="defbox" hidden aria-live="polite">
+  <div class="def-wrap">
+    <div class="kd">
+      <div class="kd-draw">
+        <svg id="kdSvg" viewBox="0 0 109 109" aria-hidden="true"></svg>
+        <canvas id="kdCanvas" width="218" height="218" hidden></canvas>
+      </div>
+      <div class="kd-info">
+        <div class="kd-head"><span id="kdChar" class="kd-char"></span><span id="kdRom" class="kd-rom"></span><span id="kdOther" class="kd-other"></span></div>
+        <div id="kdMeta" class="kd-meta"></div>
+        <div class="kd-btns">
+          <button id="kdPlay" class="chip">▶ Sound</button>
+          <button id="kdReplay" class="chip">↻ Strokes</button>
+          <button id="kdTrace" class="chip">✎ Trace</button>
+        </div>
+      </div>
+    </div>
+    <button id="kdClose" class="def-close" aria-label="Close">×</button>
+  </div>
+</aside>
+<div id="toast" class="toast" role="status"></div>
+<script src="kana_strokes.js"></script>
+<script src="kana.js"></script>
+</body>
+</html>
