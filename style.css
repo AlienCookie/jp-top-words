@@ -11,8 +11,13 @@
   --jp: "Hiragino Sans", "Yu Gothic UI", "Meiryo", "Noto Sans JP", sans-serif;
   color-scheme: light;
 }
+:root[data-theme="dark"] {
+  --bg: #16181c; --card: #1e2126; --ink: #e8e6e3; --muted: #a3a8b0; --faint: #7a808a;
+  --line: #2e333a; --accent: #fb923c; --accent-soft: #2b2018; --play: #4a2c17;
+  color-scheme: dark;
+}
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme]) {
     --bg: #16181c; --card: #1e2126; --ink: #e8e6e3; --muted: #a3a8b0; --faint: #7a808a;
     --line: #2e333a; --accent: #fb923c; --accent-soft: #2b2018; --play: #4a2c17;
     color-scheme: dark;
@@ -38,6 +43,10 @@ a { color: var(--accent); }
 h1 { font: 600 1.2rem var(--jp); margin: 0; margin-right: auto; }
 h1 span { font-family: system-ui, sans-serif; font-weight: 400; color: var(--muted); font-size: .95rem; }
 .nav-link { font-size: .9rem; text-decoration: none; white-space: nowrap; }
+.theme-toggle {
+  border: 1px solid var(--line); border-radius: 8px; background: var(--card);
+  padding: .35rem .6rem; font-size: .85rem; white-space: nowrap;
+}
 .pager { display: flex; align-items: center; gap: .25rem; }
 .pager button {
   min-width: 2.3rem; height: 2.3rem; border-radius: 8px; border: 1px solid var(--line);
